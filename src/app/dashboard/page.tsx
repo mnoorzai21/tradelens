@@ -1,3 +1,4 @@
+import { AddTradeForm } from "./add-trade-form";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -21,9 +22,9 @@ export default async function DashboardPage() {
         <SignOutButton />
       </header>
 
-      <p className="mt-6 text-zinc-400">
-        Your trades will appear here.
-      </p>
+      <div className="mt-6">
+        <AddTradeForm />
+      </div>
     </main>
   );
 }

@@ -60,7 +60,7 @@ model Trade {
   exitPrice  Decimal  @db.Decimal(12, 4)
   stopPrice  Decimal? @db.Decimal(12, 4)
   shares     Int
-  fees       Decimal  @default(0) @db.Decimal(10, 2)
+  fees       Decimal  @default(0) @db.Decimal(10, 4)
   entryAt    DateTime
   exitAt     DateTime
   notes      String?
