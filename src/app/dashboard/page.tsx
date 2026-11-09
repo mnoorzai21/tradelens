@@ -3,6 +3,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SignOutButton } from "./sign-out-button";
+import { prisma } from "@/lib/prisma";
+import { TradeTable } from "./trade-table";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -12,6 +14,12 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/sign-in");
   }
+
+  const trades = await prisma.trade.findMany({
+    where: { userId: session.user.id },
+    orderBy: { exitAt: "desc" },
+    take: 50,
+  });
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
@@ -25,6 +33,10 @@ export default async function DashboardPage() {
       <div className="mt-6">
         <AddTradeForm />
       </div>
+      <section className="mt-8">
+        <h2 className="mb-3 text-lg font-semibold">Your trades</h2>
+        <TradeTable trades={trades} />
+      </section>
     </main>
   );
 }
