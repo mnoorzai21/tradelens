@@ -26,7 +26,7 @@ export default function SignInPage() {
       setError(error.message ?? "Sign in failed. Please try again.");
       return;
     }
-    router.push("/");
+    router.push("/dashboard");
   }
 
   return (

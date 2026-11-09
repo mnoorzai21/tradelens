@@ -27,7 +27,7 @@ export default function SignUpPage() {
       setError(error.message ?? "Sign up failed. Please try again.");
       return;
     }
-    router.push("/");
+    router.push("/dashboard");
   }
 
   return (
