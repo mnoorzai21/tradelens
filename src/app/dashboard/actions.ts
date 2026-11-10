@@ -7,16 +7,16 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { tradeSchema } from "@/lib/validations/trade";
 
-export type AddTradeState = {
+export type TradeFormState = {
   success?: boolean;
   message?: string;
   errors?: Partial<Record<string, string[]>>;
 };
 
 export async function addTrade(
-  _prevState: AddTradeState,
+  _prevState: TradeFormState,
   formData: FormData
-): Promise<AddTradeState> {
+): Promise<TradeFormState> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return { message: "You must be signed in to add a trade." };

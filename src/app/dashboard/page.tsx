@@ -1,10 +1,12 @@
-import { AddTradeForm } from "./add-trade-form";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SignOutButton } from "./sign-out-button";
 import { prisma } from "@/lib/prisma";
 import { TradeTable } from "./trade-table";
+import { TradeForm } from "./trade-form";
+import { addTrade } from "./actions";
+
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -31,7 +33,13 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mt-6">
-        <AddTradeForm />
+        <TradeForm
+          title="Add a trade"
+          submitLabel="Save trade"
+          pendingLabel="Saving..."
+          action={addTrade}
+          resetOnSuccess
+        />
       </div>
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">Your trades</h2>
