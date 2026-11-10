@@ -6,6 +6,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { tradeSchema } from "@/lib/validations/trade";
+import { redirect } from "next/navigation";
 
 export type TradeFormState = {
   success?: boolean;
@@ -69,4 +70,53 @@ export async function deleteTrade(tradeId: string): Promise<{ ok: boolean }> {
 
   revalidatePath("/dashboard");
   return { ok: result.count === 1 };
+}
+
+export async function updateTrade(
+  tradeId: string,
+  _prevState: TradeFormState,
+  formData: FormData
+): Promise<TradeFormState> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return { message: "You must be signed in to edit a trade." };
+  }
+
+  const parsed = tradeSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      message: "Please fix the highlighted fields.",
+      errors: z.flattenError(parsed.error).fieldErrors,
+    };
+  }
+
+  const trade = parsed.data;
+
+  try {
+    const result = await prisma.trade.updateMany({
+      where: { id: tradeId, userId: session.user.id },
+      data: {
+        symbol: trade.symbol,
+        side: trade.side,
+        entryPrice: trade.entryPrice,
+        exitPrice: trade.exitPrice,
+        stopPrice: trade.stopPrice ?? null,
+        shares: trade.shares,
+        fees: trade.fees,
+        entryAt: trade.entryAt,
+        exitAt: trade.exitAt,
+        notes: trade.notes ?? null,
+      },
+    });
+
+    if (result.count === 0) {
+      return { message: "Trade not found." };
+    }
+  } catch (error) {
+    console.error("Failed to update trade:", error);
+    return { message: "Could not update the trade. Please try again." };
+  }
+
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
 }
