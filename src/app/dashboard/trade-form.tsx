@@ -1,9 +1,17 @@
 "use client";
 
 import { useActionState, useEffect, useRef, startTransition } from "react";
-import { addTrade, type AddTradeState } from "./actions";
+import type { TradeFormState } from "./actions";
 
-const initialState: AddTradeState = {};
+type TradeFormProps = {
+  title: string;
+  submitLabel: string;
+  pendingLabel: string;
+  action: (state: TradeFormState, formData: FormData) => Promise<TradeFormState>;
+  resetOnSuccess?: boolean;
+};
+
+const initialState: TradeFormState = {};
 
 const inputClass =
   "mt-1 w-full rounded-md border border-zinc-700 bg-transparent px-3 py-2";
@@ -18,15 +26,21 @@ function FieldError({ messages }: { messages?: string[] }) {
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
-export function AddTradeForm() {
-  const [state, formAction, pending] = useActionState(addTrade, initialState);
+export function TradeForm({
+  title,
+  submitLabel,
+  pendingLabel,
+  action,
+  resetOnSuccess = false,
+}: TradeFormProps) {
+  const [state, formAction, pending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && resetOnSuccess) {
       formRef.current?.reset();
     }
-  }, [state]);
+  }, [state, resetOnSuccess]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +57,7 @@ export function AddTradeForm() {
       noValidate
       className="space-y-4 rounded-xl border border-zinc-800 p-6"
     >
-      <h2 className="text-lg font-semibold">Add a trade</h2>
+      <h2 className="text-lg font-semibold">{title}</h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
@@ -126,7 +140,7 @@ export function AddTradeForm() {
         disabled={pending}
         className="rounded-md bg-white px-4 py-2 font-medium text-black disabled:opacity-50"
       >
-        {pending ? "Saving..." : "Save trade"}
+        {pending ? pendingLabel : submitLabel}
       </button>
     </form>
   );
