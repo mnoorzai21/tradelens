@@ -9,6 +9,20 @@ type TradeFormProps = {
   pendingLabel: string;
   action: (state: TradeFormState, formData: FormData) => Promise<TradeFormState>;
   resetOnSuccess?: boolean;
+  defaults?: TradeFormDefaults;
+};
+
+export type TradeFormDefaults = {
+  symbol: string;
+  side: "LONG" | "SHORT";
+  entryPrice: string;
+  exitPrice: string;
+  stopPrice: string;
+  shares: string;
+  fees: string;
+  entryAt: string;
+  exitAt: string;
+  notes: string;
 };
 
 const initialState: TradeFormState = {};
@@ -19,6 +33,12 @@ const inputClass =
 function toISOString(value: FormDataEntryValue | null) {
   if (typeof value !== "string" || value === "") return "";
   return new Date(value).toISOString();
+}
+
+function toLocalInputValue(iso: string) {
+  const date = new Date(iso);
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
 function FieldError({ messages }: { messages?: string[] }) {
@@ -32,6 +52,7 @@ export function TradeForm({
   pendingLabel,
   action,
   resetOnSuccess = false,
+  defaults,
 }: TradeFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -41,6 +62,15 @@ export function TradeForm({
       formRef.current?.reset();
     }
   }, [state, resetOnSuccess]);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form || !defaults) return;
+    (form.elements.namedItem("entryAt") as HTMLInputElement).value =
+      toLocalInputValue(defaults.entryAt);
+    (form.elements.namedItem("exitAt") as HTMLInputElement).value =
+      toLocalInputValue(defaults.exitAt);
+  }, [defaults]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,13 +92,19 @@ export function TradeForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="text-sm">Symbol</span>
-          <input name="symbol" type="text" placeholder="AAPL" className={inputClass} />
+          <input
+            name="symbol"
+            type="text"
+            placeholder="AAPL"
+            defaultValue={defaults?.symbol}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.symbol} />
         </label>
 
         <label className="block">
           <span className="text-sm">Side</span>
-          <select name="side" defaultValue="LONG" className={inputClass}>
+          <select name="side" defaultValue={defaults?.side ?? "LONG"} className={inputClass}>
             <option value="LONG">Long</option>
             <option value="SHORT">Short</option>
           </select>
@@ -77,31 +113,66 @@ export function TradeForm({
 
         <label className="block">
           <span className="text-sm">Entry price ($)</span>
-          <input name="entryPrice" type="number" step="0.0001" min="0" className={inputClass} />
+          <input
+            name="entryPrice"
+            type="number"
+            step="0.0001"
+            min="0"
+            defaultValue={defaults?.entryPrice}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.entryPrice} />
         </label>
 
         <label className="block">
           <span className="text-sm">Exit price ($)</span>
-          <input name="exitPrice" type="number" step="0.0001" min="0" className={inputClass} />
+          <input
+            name="exitPrice"
+            type="number"
+            step="0.0001"
+            min="0"
+            defaultValue={defaults?.exitPrice}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.exitPrice} />
         </label>
 
         <label className="block">
           <span className="text-sm">Stop price ($, optional)</span>
-          <input name="stopPrice" type="number" step="0.0001" min="0" className={inputClass} />
+          <input
+            name="stopPrice"
+            type="number"
+            step="0.0001"
+            min="0"
+            defaultValue={defaults?.stopPrice}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.stopPrice} />
         </label>
 
         <label className="block">
           <span className="text-sm">Shares</span>
-          <input name="shares" type="number" step="1" min="1" className={inputClass} />
+          <input
+            name="shares"
+            type="number"
+            step="1"
+            min="1"
+            defaultValue={defaults?.shares}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.shares} />
         </label>
 
         <label className="block">
           <span className="text-sm">Fees ($, optional)</span>
-          <input name="fees" type="number" step="0.0001" min="0" className={inputClass} />
+          <input
+            name="fees"
+            type="number"
+            step="0.0001"
+            min="0"
+            defaultValue={defaults?.fees}
+            className={inputClass}
+          />
           <FieldError messages={state.errors?.fees} />
         </label>
 
@@ -122,7 +193,12 @@ export function TradeForm({
 
       <label className="block">
         <span className="text-sm">Notes (optional)</span>
-        <textarea name="notes" rows={3} className={inputClass} />
+        <textarea
+          name="notes"
+          rows={3}
+          defaultValue={defaults?.notes}
+          className={inputClass}
+        />
         <FieldError messages={state.errors?.notes} />
       </label>
 
