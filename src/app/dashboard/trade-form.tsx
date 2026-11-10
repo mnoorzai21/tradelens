@@ -72,7 +72,7 @@ export function TradeForm({
       toLocalInputValue(defaults.exitAt);
   }, [defaults]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     formData.set("entryAt", toISOString(formData.get("entryAt")));
