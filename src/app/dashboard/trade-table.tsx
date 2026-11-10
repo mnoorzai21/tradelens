@@ -1,5 +1,6 @@
 import { calculatePnl } from "@/lib/pnl";
 import type { Trade } from "@/generated/prisma/client";
+import { DeleteTradeButton } from "./delete-trade-button";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -44,6 +45,7 @@ export function TradeTable({ trades }: { trades: Trade[] }) {
             <th scope="col" className="px-4 py-3 text-right">Entry</th>
             <th scope="col" className="px-4 py-3 text-right">Exit</th>
             <th scope="col" className="px-4 py-3 text-right">P/L</th>
+            <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
@@ -65,6 +67,9 @@ export function TradeTable({ trades }: { trades: Trade[] }) {
                     }`}
                 >
                   {pnlCurrency.format(pnl.toNumber())}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <DeleteTradeButton tradeId={trade.id} symbol={trade.symbol} />
                 </td>
               </tr>
             );

@@ -56,3 +56,17 @@ export async function addTrade(
   revalidatePath("/dashboard");
   return { success: true, message: "Trade saved." };
 }
+
+export async function deleteTrade(tradeId: string): Promise<{ ok: boolean }> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return { ok: false };
+  }
+
+  const result = await prisma.trade.deleteMany({
+    where: { id: tradeId, userId: session.user.id },
+  });
+
+  revalidatePath("/dashboard");
+  return { ok: result.count === 1 };
+}
