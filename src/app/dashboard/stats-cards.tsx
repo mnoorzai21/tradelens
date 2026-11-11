@@ -47,9 +47,15 @@ function StatCard({
   );
 }
 
-export function StatsCards({ stats }: { stats: PerformanceStats }) {
+export function StatsCards({
+  stats,
+  maxDrawdown,
+}: {
+  stats: PerformanceStats;
+  maxDrawdown: Prisma.Decimal;
+}) {
   return (
-    <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <StatCard
         label="Total P/L"
         value={money.format(stats.totalPnl.toNumber())}
@@ -82,6 +88,12 @@ export function StatsCards({ stats }: { stats: PerformanceStats }) {
             : "Add stop prices to see R"
         }
         tone={stats.averageR ? toneFor(stats.averageR) : ""}
+      />
+      <StatCard
+        label="Max drawdown"
+        value={money.format(maxDrawdown.negated().toNumber())}
+        detail="Largest drop from a peak"
+        tone={maxDrawdown.greaterThan(0) ? "text-red-400" : ""}
       />
     </dl>
   );

@@ -7,6 +7,7 @@ import { TradeTable } from "./trade-table";
 import { TradeForm } from "./trade-form";
 import { addTrade } from "./actions";
 import { calculateStats } from "@/lib/stats";
+import { calculateMaxDrawdown } from "@/lib/drawdown";
 import { StatsCards } from "./stats-cards";
 
 
@@ -34,9 +35,11 @@ export default async function DashboardPage() {
       shares: true,
       fees: true,
       stopPrice: true,
+      exitAt: true,
     },
   });
   const stats = calculateStats(statsTrades);
+  const maxDrawdown = calculateMaxDrawdown(statsTrades);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
@@ -47,7 +50,7 @@ export default async function DashboardPage() {
         <SignOutButton />
       </header>
        <section className="mt-6" aria-label="Performance summary">
-          <StatsCards stats={stats} />
+        <StatsCards stats={stats} maxDrawdown={maxDrawdown} />
        </section>
        <div className="mt-6">
         <TradeForm
