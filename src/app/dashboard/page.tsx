@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { TradeTable } from "./trade-table";
 import { TradeForm } from "./trade-form";
 import { addTrade } from "./actions";
+import { calculateStats } from "@/lib/stats";
+import { StatsCards } from "./stats-cards";
 
 
 export default async function DashboardPage() {
@@ -23,6 +25,18 @@ export default async function DashboardPage() {
     take: 50,
   });
 
+  const statsTrades = await prisma.trade.findMany({
+    where: { userId: session.user.id },
+    select: {
+      side: true,
+      entryPrice: true,
+      exitPrice: true,
+      shares: true,
+      fees: true,
+    },
+  });
+  const stats = calculateStats(statsTrades);
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
       <header className="flex items-center justify-between">
@@ -31,8 +45,10 @@ export default async function DashboardPage() {
         </h1>
         <SignOutButton />
       </header>
-
-      <div className="mt-6">
+       <section className="mt-6" aria-label="Performance summary">
+          <StatsCards stats={stats} />
+       </section>
+       <div className="mt-6">
         <TradeForm
           title="Add a trade"
           submitLabel="Save trade"
