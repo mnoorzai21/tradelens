@@ -1,4 +1,5 @@
 import { calculatePnl } from "@/lib/pnl";
+import { calculateRMultiple } from "@/lib/r-multiple";
 import type { Trade } from "@/generated/prisma/client";
 import { DeleteTradeButton } from "./delete-trade-button";
 import Link from "next/link";
@@ -13,6 +14,11 @@ const currency = new Intl.NumberFormat("en-US", {
 const pnlCurrency = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
+  signDisplay: "exceptZero",
+});
+
+const rFormat = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 2,
   signDisplay: "exceptZero",
 });
 
@@ -46,6 +52,7 @@ export function TradeTable({ trades }: { trades: Trade[] }) {
             <th scope="col" className="px-4 py-3 text-right">Entry</th>
             <th scope="col" className="px-4 py-3 text-right">Exit</th>
             <th scope="col" className="px-4 py-3 text-right">P/L</th>
+            <th scope="col" className="px-4 py-3 text-right">R</th>
             <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
           </tr>
         </thead>
@@ -54,6 +61,7 @@ export function TradeTable({ trades }: { trades: Trade[] }) {
             const pnl = calculatePnl(trade);
             const isWin = pnl.greaterThan(0);
             const isLoss = pnl.lessThan(0);
+            const rMultiple = calculateRMultiple(trade);
 
             return (
               <tr key={trade.id} className="border-b border-zinc-900 last:border-0">
@@ -68,6 +76,13 @@ export function TradeTable({ trades }: { trades: Trade[] }) {
                     }`}
                 >
                   {pnlCurrency.format(pnl.toNumber())}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  {rMultiple ? (
+                    `${rFormat.format(rMultiple.toNumber())}R`
+                  ) : (
+                    <span className="text-zinc-500" title="No stop price">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <span className="inline-flex gap-3">
