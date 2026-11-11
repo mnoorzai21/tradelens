@@ -1,7 +1,8 @@
 import { Prisma } from "@/generated/prisma/client";
 import { calculatePnl } from "./pnl";
+import { calculateRMultiple } from "./r-multiple";
 
-type TradeForStats = Parameters<typeof calculatePnl>[0];
+type TradeForStats = Parameters<typeof calculateRMultiple>[0];
 
 export type PerformanceStats = {
   totalTrades: number;
@@ -12,6 +13,8 @@ export type PerformanceStats = {
   averageWin: Prisma.Decimal;
   averageLoss: Prisma.Decimal;
   expectancy: Prisma.Decimal;
+  averageR: Prisma.Decimal | null;
+  tradesWithR: number;
 };
 
 const ZERO = new Prisma.Decimal(0);
@@ -28,6 +31,9 @@ export function calculateStats(trades: TradeForStats[]): PerformanceStats {
   const pnls = trades.map(calculatePnl);
   const winners = pnls.filter((pnl) => pnl.greaterThan(0));
   const losers = pnls.filter((pnl) => pnl.lessThan(0));
+  const rValues = trades
+  .map(calculateRMultiple)
+  .filter((r): r is Prisma.Decimal => r !== null);
 
   return {
     totalTrades: trades.length,
@@ -38,5 +44,7 @@ export function calculateStats(trades: TradeForStats[]): PerformanceStats {
     averageWin: average(winners),
     averageLoss: average(losers),
     expectancy: average(pnls),
+        averageR: rValues.length === 0 ? null : average(rValues),
+    tradesWithR: rValues.length,
   };
 }

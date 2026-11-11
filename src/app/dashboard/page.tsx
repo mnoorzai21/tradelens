@@ -33,6 +33,7 @@ export default async function DashboardPage() {
       exitPrice: true,
       shares: true,
       fees: true,
+      stopPrice: true,
     },
   });
   const stats = calculateStats(statsTrades);
