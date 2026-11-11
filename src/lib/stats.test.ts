@@ -4,11 +4,12 @@ import { calculateStats } from "./stats";
 
 const d = (value: string) => new Prisma.Decimal(value);
 
-function makeTrade(exitPrice: string) {
+function makeTrade(exitPrice: string, stopPrice: string | null = null) {
   return {
     side: "LONG" as const,
     entryPrice: d("10"),
     exitPrice: d(exitPrice),
+    stopPrice: stopPrice ? d(stopPrice) : null,
     shares: 100,
     fees: d("0"),
   };
@@ -23,6 +24,8 @@ describe("calculateStats", () => {
     expect(stats.averageWin.toString()).toBe("0");
     expect(stats.averageLoss.toString()).toBe("0");
     expect(stats.expectancy.toString()).toBe("0");
+    expect(stats.averageR).toBeNull();
+    expect(stats.tradesWithR).toBe(0);
   });
 
   it("calculates stats for a mix of wins, a loss and a break-even trade", () => {
@@ -49,5 +52,18 @@ describe("calculateStats", () => {
     expect(stats.winRate).toBe(1);
     expect(stats.losses).toBe(0);
     expect(stats.averageLoss.toString()).toBe("0");
+  });
+
+    it("averages R only over trades that have a stop", () => {
+    // Entry 10, stop 9, 100 shares → risk $100
+    // Exit 13 → +3R, exit 9 → -1R, and one trade without a stop
+    const stats = calculateStats([
+      makeTrade("13", "9"),
+      makeTrade("9", "9"),
+      makeTrade("12"),
+    ]);
+
+    expect(stats.tradesWithR).toBe(2);
+    expect(stats.averageR?.toString()).toBe("1");
   });
 });

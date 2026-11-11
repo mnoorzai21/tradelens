@@ -12,6 +12,11 @@ const percent = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 });
 
+const rFormat = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 2,
+  signDisplay: "exceptZero",
+});
+
 function plural(count: number, singular: string, pluralForm: string) {
   return `${count} ${count === 1 ? singular : pluralForm}`;
 }
@@ -44,7 +49,7 @@ function StatCard({
 
 export function StatsCards({ stats }: { stats: PerformanceStats }) {
   return (
-    <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <StatCard
         label="Total P/L"
         value={money.format(stats.totalPnl.toNumber())}
@@ -67,6 +72,16 @@ export function StatsCards({ stats }: { stats: PerformanceStats }) {
         value={money.format(stats.expectancy.toNumber())}
         detail="Average P/L per trade"
         tone={toneFor(stats.expectancy)}
+      />
+      <StatCard
+        label="Average R"
+        value={stats.averageR ? `${rFormat.format(stats.averageR.toNumber())}R` : "—"}
+        detail={
+          stats.averageR
+            ? plural(stats.tradesWithR, "trade with a stop", "trades with a stop")
+            : "Add stop prices to see R"
+        }
+        tone={stats.averageR ? toneFor(stats.averageR) : ""}
       />
     </dl>
   );
