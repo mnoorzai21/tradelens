@@ -14,6 +14,17 @@ export type TradeFormState = {
   errors?: Partial<Record<string, string[]>>;
 };
 
+async function resolveSetupId(userId: string, name?: string): Promise<string | null> {
+  if (!name) return null;
+
+  const setup = await prisma.setup.upsert({
+    where: { userId_name: { userId, name } },
+    update: {},
+    create: { userId, name },
+  });
+  return setup.id;
+}
+
 export async function addTrade(
   _prevState: TradeFormState,
   formData: FormData
@@ -32,8 +43,8 @@ export async function addTrade(
   }
 
   const trade = parsed.data;
-
   try {
+    const setupId = await resolveSetupId(session.user.id, trade.setup);
     await prisma.trade.create({
       data: {
         userId: session.user.id,
@@ -47,6 +58,7 @@ export async function addTrade(
         entryAt: trade.entryAt,
         exitAt: trade.exitAt,
         notes: trade.notes,
+        setupId,
       },
     });
   } catch (error) {
@@ -93,6 +105,7 @@ export async function updateTrade(
   const trade = parsed.data;
 
   try {
+    const setupId = await resolveSetupId(session.user.id, trade.setup);
     const result = await prisma.trade.updateMany({
       where: { id: tradeId, userId: session.user.id },
       data: {
@@ -106,6 +119,7 @@ export async function updateTrade(
         entryAt: trade.entryAt,
         exitAt: trade.exitAt,
         notes: trade.notes ?? null,
+        setupId,
       },
     });
 

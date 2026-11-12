@@ -32,6 +32,10 @@ export const tradeSchema = z
       emptyToUndefined,
       z.string().trim().max(2000, "Notes are too long").optional()
     ),
+    setup: z.preprocess(
+      emptyToUndefined,
+      z.string().trim().max(50, "Setup name is too long").optional()
+    ),
   })
   .refine((trade) => trade.exitAt >= trade.entryAt, {
     message: "Exit time must be after entry time",
