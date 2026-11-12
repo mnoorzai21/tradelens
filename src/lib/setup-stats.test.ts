@@ -5,8 +5,9 @@ import { calculateStatsBySetup } from "./setup-stats";
 const d = (value: string) => new Prisma.Decimal(value);
 
 // Entry $10, 100 shares → P/L = (exit − 10) × 100
-function makeTrade(exitPrice: string, setup: string | null) {
+function makeTrade(exitPrice: string, setup: string | null, symbol = "TEST") {
   return {
+    symbol,
     side: "LONG" as const,
     entryPrice: d("10"),
     exitPrice: d(exitPrice),
@@ -49,4 +50,15 @@ describe("calculateStatsBySetup", () => {
 
     expect(result.map((group) => group.setup)).toEqual(["Gap and go", null]);
   });
+
+    it("lists each setup's symbols once, in alphabetical order", () => {
+    const result = calculateStatsBySetup([
+      makeTrade("12", "VWAP reclaim", "TSLA"),
+      makeTrade("11", "VWAP reclaim", "AAPL"),
+      makeTrade("13", "VWAP reclaim", "TSLA"),
+    ]);
+
+    expect(result[0].symbols).toEqual(["AAPL", "TSLA"]);
+    });
+  
 });

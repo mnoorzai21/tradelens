@@ -1,4 +1,5 @@
 import { calculateStats, type PerformanceStats } from "./stats";
+import { uniqueSymbols } from "./symbols";
 
 type TradeForTagStats = Parameters<typeof calculateStats>[0][number] & {
   symbol: string;
@@ -10,10 +11,6 @@ export type TagStats = {
   symbols: string[];
   stats: PerformanceStats;
 };
-
-function uniqueSymbols(trades: TradeForTagStats[]): string[] {
-  return [...new Set(trades.map((trade) => trade.symbol))].sort();
-}
 
 export function calculateStatsByTag(trades: TradeForTagStats[]): TagStats[] {
   const groups = new Map<string, TradeForTagStats[]>();

@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { TagStats } from "@/lib/tag-stats";
+import { formatSymbols } from "@/lib/symbols";
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -16,11 +17,6 @@ function toneFor(value: Prisma.Decimal) {
   if (value.greaterThan(0)) return "text-green-400";
   if (value.lessThan(0)) return "text-red-400";
   return "";
-}
-
-function formatSymbols(symbols: string[]) {
-  if (symbols.length <= 3) return symbols.join(", ");
-  return `${symbols.slice(0, 3).join(", ")} +${symbols.length - 3} more`;
 }
 
 export function MistakeStatsTable({ groups }: { groups: TagStats[] }) {
