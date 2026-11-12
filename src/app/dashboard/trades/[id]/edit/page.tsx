@@ -18,7 +18,7 @@ export default async function EditTradePage(
 
   const trade = await prisma.trade.findFirst({
     where: { id, userId: session.user.id },
-    include: { setup: true },
+    include: { setup: true, tags: { select: { name: true } } },
   });
   if (!trade) {
     notFound();
@@ -55,6 +55,7 @@ export default async function EditTradePage(
             exitAt: trade.exitAt.toISOString(),
             notes: trade.notes ?? "",
             setup: trade.setup?.name ?? "",
+            tags: trade.tags.map((tag) => tag.name),
           }}
         />
       </div>
