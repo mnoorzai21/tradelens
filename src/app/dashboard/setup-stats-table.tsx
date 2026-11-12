@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { SetupStats } from "@/lib/setup-stats";
+import { formatSymbols } from "@/lib/symbols";
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -39,6 +40,7 @@ export function SetupStatsTable({ groups }: { groups: SetupStats[] }) {
         <thead className="border-b border-zinc-800 text-zinc-400">
           <tr>
             <th scope="col" className="px-4 py-3">Setup</th>
+            <th scope="col" className="px-4 py-3">Symbols</th>
             <th scope="col" className="px-4 py-3 text-right">Trades</th>
             <th scope="col" className="px-4 py-3 text-right">Win rate</th>
             <th scope="col" className="px-4 py-3 text-right">Total P/L</th>
@@ -47,11 +49,14 @@ export function SetupStatsTable({ groups }: { groups: SetupStats[] }) {
           </tr>
         </thead>
         <tbody>
-          {groups.map(({ setup, stats }) => (
+          {groups.map(({ setup, symbols, stats }) => (
             <tr key={setup ?? "no-setup"} className="border-b border-zinc-900 last:border-0">
               <th scope="row" className="px-4 py-3 font-medium">
                 {setup ?? <span className="text-zinc-500">No setup</span>}
               </th>
+              <td className="px-4 py-3 text-zinc-300" title={symbols.join(", ")}>
+                {formatSymbols(symbols)}
+              </td>
               <td className="px-4 py-3 text-right">{stats.totalTrades}</td>
               <td className="px-4 py-3 text-right">{percent.format(stats.winRate)}</td>
               <td className={`px-4 py-3 text-right font-medium ${toneFor(stats.totalPnl)}`}>

@@ -1,11 +1,14 @@
 import { calculateStats, type PerformanceStats } from "./stats";
+import { uniqueSymbols } from "./symbols";
 
 type TradeForSetupStats = Parameters<typeof calculateStats>[0][number] & {
+  symbol: string;
   setup: { name: string } | null;
 };
 
 export type SetupStats = {
   setup: string | null;
+  symbols: string[];
   stats: PerformanceStats;
 };
 
@@ -20,7 +23,11 @@ export function calculateStatsBySetup(trades: TradeForSetupStats[]): SetupStats[
   }
 
   return [...groups.entries()]
-    .map(([setup, group]) => ({ setup, stats: calculateStats(group) }))
+        .map(([setup, group]) => ({
+      setup,
+      symbols: uniqueSymbols(group),
+      stats: calculateStats(group),
+    }))
     .sort((a, b) => {
       if (a.setup === null) return 1;
       if (b.setup === null) return -1;
