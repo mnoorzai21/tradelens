@@ -18,10 +18,17 @@ export default async function EditTradePage(
 
   const trade = await prisma.trade.findFirst({
     where: { id, userId: session.user.id },
+    include: { setup: true },
   });
   if (!trade) {
     notFound();
   }
+
+  const setups = await prisma.setup.findMany({
+    where: { userId: session.user.id },
+    orderBy: { name: "asc" },
+    select: { name: true },
+  });
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
@@ -35,6 +42,7 @@ export default async function EditTradePage(
           submitLabel="Save changes"
           pendingLabel="Saving..."
           action={updateTrade.bind(null, trade.id)}
+          setupOptions={setups.map((setup) => setup.name)}
           defaults={{
             symbol: trade.symbol,
             side: trade.side,
@@ -46,6 +54,7 @@ export default async function EditTradePage(
             entryAt: trade.entryAt.toISOString(),
             exitAt: trade.exitAt.toISOString(),
             notes: trade.notes ?? "",
+            setup: trade.setup?.name ?? "",
           }}
         />
       </div>
