@@ -24,6 +24,7 @@ export default async function DashboardPage() {
     where: { userId: session.user.id },
     orderBy: { exitAt: "desc" },
     take: 50,
+    include: { setup: { select: { name: true } } },
   });
 
   const statsTrades = await prisma.trade.findMany({
@@ -40,9 +41,14 @@ export default async function DashboardPage() {
   });
   const stats = calculateStats(statsTrades);
   const maxDrawdown = calculateMaxDrawdown(statsTrades);
+  const setups = await prisma.setup.findMany({
+    where: { userId: session.user.id },
+    orderBy: { name: "asc" },
+    select: { name: true },
+  });
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
+    <main className="mx-auto max-w-6xl px-4 py-10">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">
           Welcome, {session.user.name}
@@ -58,6 +64,7 @@ export default async function DashboardPage() {
           submitLabel="Save trade"
           pendingLabel="Saving..."
           action={addTrade}
+          setupOptions={setups.map((setup) => setup.name)}
           resetOnSuccess
         />
       </div>

@@ -10,6 +10,7 @@ type TradeFormProps = {
   action: (state: TradeFormState, formData: FormData) => Promise<TradeFormState>;
   resetOnSuccess?: boolean;
   defaults?: TradeFormDefaults;
+  setupOptions?: string[];
 };
 
 export type TradeFormDefaults = {
@@ -23,6 +24,7 @@ export type TradeFormDefaults = {
   entryAt: string;
   exitAt: string;
   notes: string;
+  setup: string;
 };
 
 const initialState: TradeFormState = {};
@@ -53,6 +55,7 @@ export function TradeForm({
   action,
   resetOnSuccess = false,
   defaults,
+  setupOptions = [],
 }: TradeFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -176,7 +179,24 @@ export function TradeForm({
           <FieldError messages={state.errors?.fees} />
         </label>
 
-        <div className="hidden sm:block" />
+        <label className="block">
+          <span className="text-sm">Setup (optional)</span>
+          <input
+            name="setup"
+            type="text"
+            list="setup-options"
+            placeholder="Gap and go"
+            autoComplete="off"
+            defaultValue={defaults?.setup}
+            className={inputClass}
+          />
+          <datalist id="setup-options">
+            {setupOptions.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+          <FieldError messages={state.errors?.setup} />
+        </label>
 
         <label className="block">
           <span className="text-sm">Entry time</span>
