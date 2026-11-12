@@ -10,6 +10,8 @@ import { calculateStats } from "@/lib/stats";
 import { calculateMaxDrawdown } from "@/lib/drawdown";
 import { calculateStatsBySetup } from "@/lib/setup-stats";
 import { SetupStatsTable } from "./setup-stats-table";
+import { calculateStatsByTag } from "@/lib/tag-stats";
+import { MistakeStatsTable } from "./mistake-stats-table";
 import { StatsCards } from "./stats-cards";
 
 
@@ -40,11 +42,14 @@ export default async function DashboardPage() {
       stopPrice: true,
       exitAt: true,
       setup: { select: { name: true } },
+      tags: { select: { name: true } },
+      symbol: true,
     },
   });
   const stats = calculateStats(statsTrades);
   const maxDrawdown = calculateMaxDrawdown(statsTrades);
   const setupStats = calculateStatsBySetup(statsTrades);
+  const mistakeStats = calculateStatsByTag(statsTrades);
   const setups = await prisma.setup.findMany({
     where: { userId: session.user.id },
     orderBy: { name: "asc" },
@@ -65,6 +70,10 @@ export default async function DashboardPage() {
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">By setup</h2>
         <SetupStatsTable groups={setupStats} />
+      </section>
+      <section className="mt-8">
+        <h2 className="mb-3 text-lg font-semibold">Mistakes</h2>
+        <MistakeStatsTable groups={mistakeStats} />
       </section>
        <div className="mt-6">
         <TradeForm
