@@ -25,6 +25,13 @@ async function resolveSetupId(userId: string, name?: string): Promise<string | n
   return setup.id;
 }
 
+function tagConnections(userId: string, names: string[]) {
+  return [...new Set(names)].map((name) => ({
+    where: { userId_name: { userId, name } },
+    create: { userId, name },
+  }));
+}
+
 export async function addTrade(
   _prevState: TradeFormState,
   formData: FormData
@@ -34,7 +41,10 @@ export async function addTrade(
     return { message: "You must be signed in to add a trade." };
   }
 
-  const parsed = tradeSchema.safeParse(Object.fromEntries(formData));
+  const parsed = tradeSchema.safeParse({
+    ...Object.fromEntries(formData),
+    tags: formData.getAll("tags"),
+  });
   if (!parsed.success) {
     return {
       message: "Please fix the highlighted fields.",
@@ -59,6 +69,7 @@ export async function addTrade(
         exitAt: trade.exitAt,
         notes: trade.notes,
         setupId,
+        tags: { connectOrCreate: tagConnections(session.user.id, trade.tags) },
       },
     });
   } catch (error) {
@@ -94,7 +105,10 @@ export async function updateTrade(
     return { message: "You must be signed in to edit a trade." };
   }
 
-  const parsed = tradeSchema.safeParse(Object.fromEntries(formData));
+    const parsed = tradeSchema.safeParse({
+    ...Object.fromEntries(formData),
+    tags: formData.getAll("tags"),
+  });
   if (!parsed.success) {
     return {
       message: "Please fix the highlighted fields.",
@@ -106,8 +120,16 @@ export async function updateTrade(
 
   try {
     const setupId = await resolveSetupId(session.user.id, trade.setup);
-    const result = await prisma.trade.updateMany({
+    const existing = await prisma.trade.findFirst({
       where: { id: tradeId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { message: "Trade not found." };
+    }
+
+    await prisma.trade.update({
+      where: { id: existing.id },
       data: {
         symbol: trade.symbol,
         side: trade.side,
@@ -120,12 +142,13 @@ export async function updateTrade(
         exitAt: trade.exitAt,
         notes: trade.notes ?? null,
         setupId,
+        tags: {
+          set: [],
+          connectOrCreate: tagConnections(session.user.id, trade.tags),
+        },
       },
     });
 
-    if (result.count === 0) {
-      return { message: "Trade not found." };
-    }
   } catch (error) {
     console.error("Failed to update trade:", error);
     return { message: "Could not update the trade. Please try again." };

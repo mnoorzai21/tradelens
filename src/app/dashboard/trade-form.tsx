@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, startTransition } from "react";
 import type { TradeFormState } from "./actions";
+import { MISTAKE_TAGS } from "@/lib/mistake-tags";
 
 type TradeFormProps = {
   title: string;
@@ -25,6 +26,7 @@ export type TradeFormDefaults = {
   exitAt: string;
   notes: string;
   setup: string;
+  tags: string[];
 };
 
 const initialState: TradeFormState = {};
@@ -210,6 +212,28 @@ export function TradeForm({
           <FieldError messages={state.errors?.exitAt} />
         </label>
       </div>
+      
+      <fieldset>
+        <legend className="text-sm">Mistakes (optional)</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {MISTAKE_TAGS.map((tag) => (
+            <label
+              key={tag}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-zinc-700 px-3 py-1.5 text-sm has-[:checked]:border-red-400 has-[:checked]:text-red-300"
+            >
+              <input
+                type="checkbox"
+                name="tags"
+                value={tag}
+                defaultChecked={defaults?.tags.includes(tag)}
+                className="accent-red-400"
+              />
+              {tag}
+            </label>
+          ))}
+        </div>
+        <FieldError messages={state.errors?.tags} />
+      </fieldset>
 
       <label className="block">
         <span className="text-sm">Notes (optional)</span>
