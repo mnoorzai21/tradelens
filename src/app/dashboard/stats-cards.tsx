@@ -1,30 +1,9 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { PerformanceStats } from "@/lib/stats";
-
-const money = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  signDisplay: "exceptZero",
-});
-
-const percent = new Intl.NumberFormat("en-US", {
-  style: "percent",
-  maximumFractionDigits: 1,
-});
-
-const rFormat = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2,
-  signDisplay: "exceptZero",
-});
+import { formatPercent, formatR, formatSignedMoney, toneFor } from "@/lib/format";
 
 function plural(count: number, singular: string, pluralForm: string) {
   return `${count} ${count === 1 ? singular : pluralForm}`;
-}
-
-function toneFor(value: Prisma.Decimal) {
-  if (value.greaterThan(0)) return "text-green-400";
-  if (value.lessThan(0)) return "text-red-400";
-  return "";
 }
 
 function StatCard({
@@ -58,30 +37,30 @@ export function StatsCards({
     <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <StatCard
         label="Total P/L"
-        value={money.format(stats.totalPnl.toNumber())}
+        value={formatSignedMoney(stats.totalPnl)}
         detail={plural(stats.totalTrades, "trade", "trades")}
         tone={toneFor(stats.totalPnl)}
       />
       <StatCard
         label="Win rate"
-        value={percent.format(stats.winRate)}
+        value={formatPercent(stats.winRate)}
         detail={`${plural(stats.wins, "win", "wins")} · ${plural(stats.losses, "loss", "losses")}`}
         
       />
       <StatCard
         label="Avg win / avg loss"
-        value={money.format(stats.averageWin.toNumber())}
-        detail={`Avg loss ${money.format(stats.averageLoss.toNumber())}`}
+        value={formatSignedMoney(stats.averageWin)}
+        detail={`Avg loss ${formatSignedMoney(stats.averageLoss)}`}
       />
       <StatCard
         label="Expectancy"
-        value={money.format(stats.expectancy.toNumber())}
+        value={formatSignedMoney(stats.expectancy)}
         detail="Average P/L per trade"
         tone={toneFor(stats.expectancy)}
       />
       <StatCard
         label="Average R"
-        value={stats.averageR ? `${rFormat.format(stats.averageR.toNumber())}R` : "—"}
+        value={stats.averageR ? formatR(stats.averageR) : "—"}
         detail={
           stats.averageR
             ? plural(stats.tradesWithR, "trade with a stop", "trades with a stop")
@@ -91,7 +70,7 @@ export function StatsCards({
       />
       <StatCard
         label="Max drawdown"
-        value={money.format(maxDrawdown.negated().toNumber())}
+        value={formatSignedMoney(maxDrawdown.negated())}
         detail="Largest drop from a peak"
         tone={maxDrawdown.greaterThan(0) ? "text-red-400" : ""}
       />

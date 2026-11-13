@@ -1,23 +1,6 @@
-import type { Prisma } from "@/generated/prisma/client";
 import type { TagStats } from "@/lib/tag-stats";
 import { formatSymbols } from "@/lib/symbols";
-
-const money = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  signDisplay: "exceptZero",
-});
-
-const percent = new Intl.NumberFormat("en-US", {
-  style: "percent",
-  maximumFractionDigits: 1,
-});
-
-function toneFor(value: Prisma.Decimal) {
-  if (value.greaterThan(0)) return "text-green-400";
-  if (value.lessThan(0)) return "text-red-400";
-  return "";
-}
+import { formatPercent, formatSignedMoney, toneFor } from "@/lib/format";
 
 export function MistakeStatsTable({ groups }: { groups: TagStats[] }) {
   if (groups.length === 0) {
@@ -52,12 +35,12 @@ export function MistakeStatsTable({ groups }: { groups: TagStats[] }) {
                 {formatSymbols(symbols)}
               </td>
               <td className="px-4 py-3 text-right">{stats.totalTrades}</td>
-              <td className="px-4 py-3 text-right">{percent.format(stats.winRate)}</td>
+              <td className="px-4 py-3 text-right">{formatPercent(stats.winRate)}</td>
               <td className={`px-4 py-3 text-right font-medium ${toneFor(stats.totalPnl)}`}>
-                {money.format(stats.totalPnl.toNumber())}
+                {formatSignedMoney(stats.totalPnl)}
               </td>
               <td className={`px-4 py-3 text-right ${toneFor(stats.expectancy)}`}>
-                {money.format(stats.expectancy.toNumber())}
+                {formatSignedMoney(stats.expectancy)}
               </td>
             </tr>
           ))}
