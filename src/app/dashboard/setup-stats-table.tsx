@@ -1,28 +1,6 @@
-import type { Prisma } from "@/generated/prisma/client";
 import type { SetupStats } from "@/lib/setup-stats";
 import { formatSymbols } from "@/lib/symbols";
-
-const money = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  signDisplay: "exceptZero",
-});
-
-const percent = new Intl.NumberFormat("en-US", {
-  style: "percent",
-  maximumFractionDigits: 1,
-});
-
-const rFormat = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2,
-  signDisplay: "exceptZero",
-});
-
-function toneFor(value: Prisma.Decimal) {
-  if (value.greaterThan(0)) return "text-green-400";
-  if (value.lessThan(0)) return "text-red-400";
-  return "";
-}
+import { formatPercent, formatR, formatSignedMoney, toneFor } from "@/lib/format";
 
 export function SetupStatsTable({ groups }: { groups: SetupStats[] }) {
   if (groups.length === 0) {
@@ -58,16 +36,16 @@ export function SetupStatsTable({ groups }: { groups: SetupStats[] }) {
                 {formatSymbols(symbols)}
               </td>
               <td className="px-4 py-3 text-right">{stats.totalTrades}</td>
-              <td className="px-4 py-3 text-right">{percent.format(stats.winRate)}</td>
+              <td className="px-4 py-3 text-right">{formatPercent(stats.winRate)}</td>
               <td className={`px-4 py-3 text-right font-medium ${toneFor(stats.totalPnl)}`}>
-                {money.format(stats.totalPnl.toNumber())}
+                {formatSignedMoney(stats.totalPnl)}
               </td>
               <td className={`px-4 py-3 text-right ${toneFor(stats.expectancy)}`}>
-                {money.format(stats.expectancy.toNumber())}
+                {formatSignedMoney(stats.expectancy)}
               </td>
               <td className="px-4 py-3 text-right">
                 {stats.averageR ? (
-                  `${rFormat.format(stats.averageR.toNumber())}R`
+                  formatR(stats.averageR)
                 ) : (
                   <span className="text-zinc-500">—</span>
                 )}

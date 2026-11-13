@@ -1,5 +1,6 @@
 import { calculatePnl } from "@/lib/pnl";
 import { calculateRMultiple } from "@/lib/r-multiple";
+import { formatPrice, formatR, formatSignedMoney, toneFor } from "@/lib/format";
 import type { Prisma } from "@/generated/prisma/client";
 import { DeleteTradeButton } from "./delete-trade-button";
 import Link from "next/link";
@@ -7,24 +8,6 @@ import Link from "next/link";
 type TradeWithSetup = Prisma.TradeGetPayload<{
   include: { setup: { select: { name: true } } };
 }>;
-
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 4,
-});
-
-const pnlCurrency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  signDisplay: "exceptZero",
-});
-
-const rFormat = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2,
-  signDisplay: "exceptZero",
-});
 
 const marketTime = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
@@ -64,8 +47,6 @@ export function TradeTable({ trades }: { trades: TradeWithSetup[] }) {
         <tbody>
           {trades.map((trade) => {
             const pnl = calculatePnl(trade);
-            const isWin = pnl.greaterThan(0);
-            const isLoss = pnl.lessThan(0);
             const rMultiple = calculateRMultiple(trade);
 
             return (
@@ -77,17 +58,14 @@ export function TradeTable({ trades }: { trades: TradeWithSetup[] }) {
                 </td>
                 <td className="px-4 py-3">{trade.side === "LONG" ? "Long" : "Short"}</td>
                 <td className="px-4 py-3 text-right">{trade.shares}</td>
-                <td className="px-4 py-3 text-right">{currency.format(trade.entryPrice.toNumber())}</td>
-                <td className="px-4 py-3 text-right">{currency.format(trade.exitPrice.toNumber())}</td>
-                <td
-                  className={`px-4 py-3 text-right font-medium ${isWin ? "text-green-400" : isLoss ? "text-red-400" : ""
-                    }`}
-                >
-                  {pnlCurrency.format(pnl.toNumber())}
+                <td className="px-4 py-3 text-right">{formatPrice(trade.entryPrice)}</td>
+                <td className="px-4 py-3 text-right">{formatPrice(trade.exitPrice)}</td>
+                <td className={`px-4 py-3 text-right font-medium ${toneFor(pnl)}`}>
+                  {formatSignedMoney(pnl)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   {rMultiple ? (
-                    `${rFormat.format(rMultiple.toNumber())}R`
+                    formatR(rMultiple)
                   ) : (
                     <span className="text-zinc-500" title="No stop price">—</span>
                   )}
