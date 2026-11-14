@@ -1,9 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { signInAsDemo } from "./actions";
+
+function DemoButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full rounded-md border border-zinc-700 px-3 py-2 font-medium hover:bg-zinc-900 disabled:opacity-50"
+    >
+      {pending ? "Opening the demo..." : "Try the demo"}
+    </button>
+  );
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -30,7 +45,7 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-xl border border-zinc-800 p-6"
@@ -78,6 +93,12 @@ export default function SignInPage() {
           <Link href="/sign-up" className="underline">
             Sign up
           </Link>
+        </p>
+      </form>
+      <form action={signInAsDemo} className="w-full max-w-sm space-y-2">
+        <DemoButton />
+        <p className="text-center text-xs text-zinc-500">
+          Explore TradeLens with sample trades. No sign-up needed.
         </p>
       </form>
     </main>
