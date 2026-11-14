@@ -12,8 +12,13 @@ export default async function EditTradePage(
   const { id } = await props.params;
 
   const session = await auth.api.getSession({ headers: await headers() });
+  
   if (!session) {
     redirect("/sign-in");
+  }
+
+  if (session.user.isDemo) {
+    redirect("/dashboard");
   }
 
   const trade = await prisma.trade.findFirst({

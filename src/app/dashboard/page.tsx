@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -23,6 +24,8 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/sign-in");
   }
+
+  const isDemo = session.user.isDemo;
 
   const trades = await prisma.trade.findMany({
     where: { userId: session.user.id },
@@ -64,6 +67,18 @@ export default async function DashboardPage() {
         </h1>
         <SignOutButton />
       </header>
+      {isDemo && (
+        <div
+          role="status"
+          className="mt-6 rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-sm text-blue-200"
+        >
+          You&apos;re viewing a read-only demo with sample trades.{" "}
+          <Link href="/sign-up" className="font-medium underline">
+            Create a free account
+          </Link>{" "}
+          to log your own trades.
+        </div>
+      )}
        <section className="mt-6" aria-label="Performance summary">
         <StatsCards stats={stats} maxDrawdown={maxDrawdown} />
       </section>
@@ -75,19 +90,21 @@ export default async function DashboardPage() {
         <h2 className="mb-3 text-lg font-semibold">Mistakes</h2>
         <MistakeStatsTable groups={mistakeStats} />
       </section>
-       <div className="mt-6">
-        <TradeForm
-          title="Add a trade"
-          submitLabel="Save trade"
-          pendingLabel="Saving..."
-          action={addTrade}
-          setupOptions={setups.map((setup) => setup.name)}
-          resetOnSuccess
-        />
-      </div>
+      {!isDemo && (
+        <div className="mt-6">
+          <TradeForm
+            title="Add a trade"
+            submitLabel="Save trade"
+            pendingLabel="Saving..."
+            action={addTrade}
+            setupOptions={setups.map((setup) => setup.name)}
+            resetOnSuccess
+          />
+        </div>
+      )}
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">Your trades</h2>
-        <TradeTable trades={trades} />
+        <TradeTable trades={trades} readOnly={isDemo} />
       </section>
     </main>
   );

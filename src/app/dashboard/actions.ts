@@ -14,6 +14,8 @@ export type TradeFormState = {
   errors?: Partial<Record<string, string[]>>;
 };
 
+const DEMO_READ_ONLY_MESSAGE = "The demo is read-only. Sign up to log your own trades.";
+
 async function resolveSetupId(userId: string, name?: string): Promise<string | null> {
   if (!name) return null;
 
@@ -39,6 +41,10 @@ export async function addTrade(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return { message: "You must be signed in to add a trade." };
+  }
+
+  if (session.user.isDemo) {
+    return { message: DEMO_READ_ONLY_MESSAGE };
   }
 
   const parsed = tradeSchema.safeParse({
@@ -87,6 +93,10 @@ export async function deleteTrade(tradeId: string): Promise<{ ok: boolean }> {
     return { ok: false };
   }
 
+  if (session.user.isDemo) {
+    return { ok: false };
+  }
+
   const result = await prisma.trade.deleteMany({
     where: { id: tradeId, userId: session.user.id },
   });
@@ -103,6 +113,10 @@ export async function updateTrade(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return { message: "You must be signed in to edit a trade." };
+  }
+
+  if (session.user.isDemo) {
+    return { message: DEMO_READ_ONLY_MESSAGE };
   }
 
     const parsed = tradeSchema.safeParse({
