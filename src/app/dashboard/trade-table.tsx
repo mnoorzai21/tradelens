@@ -17,7 +17,13 @@ const marketTime = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-export function TradeTable({ trades }: { trades: TradeWithSetup[] }) {
+export function TradeTable({
+  trades,
+  readOnly = false,
+}: {
+  trades: TradeWithSetup[];
+  readOnly?: boolean;
+}) {
   if (trades.length === 0) {
     return (
       <p className="rounded-xl border border-zinc-800 p-6 text-zinc-400">
@@ -41,7 +47,9 @@ export function TradeTable({ trades }: { trades: TradeWithSetup[] }) {
             <th scope="col" className="px-4 py-3 text-right">Exit</th>
             <th scope="col" className="px-4 py-3 text-right">P/L</th>
             <th scope="col" className="px-4 py-3 text-right">R</th>
-            <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
+            {!readOnly && (
+              <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -70,18 +78,20 @@ export function TradeTable({ trades }: { trades: TradeWithSetup[] }) {
                     <span className="text-zinc-500" title="No stop price">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="inline-flex gap-3">
-                    <Link
-                      href={`/dashboard/trades/${trade.id}/edit`}
-                      className="text-sm text-zinc-400 hover:text-white"
-                      aria-label={`Edit ${trade.symbol} trade`}
-                    >
-                      Edit
-                    </Link>
-                    <DeleteTradeButton tradeId={trade.id} symbol={trade.symbol} />
-                  </span>
-                </td>
+                {!readOnly && (
+                  <td className="px-4 py-3 text-right">
+                    <span className="inline-flex gap-3">
+                      <Link
+                        href={`/dashboard/trades/${trade.id}/edit`}
+                        className="text-sm text-zinc-400 hover:text-white"
+                        aria-label={`Edit ${trade.symbol} trade`}
+                      >
+                        Edit
+                      </Link>
+                      <DeleteTradeButton tradeId={trade.id} symbol={trade.symbol} />
+                    </span>
+                  </td>
+                )}
               </tr>
             );
           })}
