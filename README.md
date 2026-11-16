@@ -6,6 +6,10 @@ A full-stack trading journal for day traders built with **Next.js, TypeScript, P
 
 **[Live Demo](https://tradelens-mnoorzai.vercel.app)**
 
+Click **Try the demo** on the sign-in page to explore a read-only account with 60 sample trades.
+
+![TradeLens dashboard showing performance stats, results by setup, and the cost of each trading mistake](docs/tradelens-dashboard.png)
+
 ## Features
 
 - **Secure accounts** with Better Auth: email and password sign-up, hashed passwords, and sessions stored in PostgreSQL.
@@ -14,6 +18,8 @@ A full-stack trading journal for day traders built with **Next.js, TypeScript, P
 - **Exact P/L:** all money math uses decimals instead of floating point, so `0.3 − 0.1` is exactly `0.2`, and fees can include fractions of a cent.
 - **R-multiples:** each trade's result in units of planned risk, for longs and shorts. Trades without a stop show "—" instead of a misleading 0.
 - **Performance stats:** total P/L, win rate, average win vs. average loss, expectancy, average R and max drawdown.
+- **Setups and mistakes:** label each trade with a setup and the mistakes made, then see stats by setup and what each mistake costs, with the symbols involved.
+- **One-click demo:** a read-only demo account with 60 realistic trades. Changes are blocked on the server, not just hidden in the interface.
 - **Data isolation:** every query is scoped to the signed-in user. Editing or deleting another user's trade is impossible (IDOR-safe), and their trade pages return 404.
 - **Market time:** trades are stored in UTC and shown in Eastern Time, while the forms use the trader's local time.
 - **Two-step delete** (Delete → Confirm) to prevent accidental deletes.
@@ -39,7 +45,7 @@ Every metric is covered by unit tests, including longs, shorts, fees, break-even
 - **Database:** PostgreSQL on Neon, Prisma 7 with the `pg` driver adapter
 - **Auth:** Better Auth (email and password)
 - **Validation:** Zod
-- **Testing & CI:** Vitest (22 unit tests), ESLint, TypeScript, GitHub Actions on every pull request
+- **Testing & CI:** Vitest (35 unit tests), ESLint, TypeScript, GitHub Actions on every pull request
 - **Hosting:** Vercel (a preview deployment for every pull request, production on every merge to `main`)
 
 ## How It Works
@@ -104,7 +110,7 @@ Open http://localhost:3000/sign-up to create an account.
 npm test
 ```
 
-The tests cover P/L for longs and shorts, fees, R-multiples (including trades without a stop), performance stats, and max drawdown with out-of-order trades. CI runs them, plus lint, typecheck and a production build, on every pull request.
+The tests cover P/L for longs and shorts, fees, R-multiples (including trades without a stop), performance stats, max drawdown with out-of-order trades, and stats by setup and by mistake. CI runs them, plus lint, typecheck and a production build, on every pull request.
 
 ## API
 
@@ -119,7 +125,7 @@ Trades are created, updated and deleted through Next.js Server Actions rather th
 
 **App:** https://tradelens-mnoorzai.vercel.app (deployed by Vercel on every merge to `main`)
 
-**Environment variables on Vercel:** `DATABASE_URL` (Production and Preview), `BETTER_AUTH_SECRET` (Production and Preview, different from the local one) and `BETTER_AUTH_URL` (Production). Functions are pinned to `iad1` in `vercel.json`, next to the database.
+**Environment variables on Vercel:** `DATABASE_URL` (Production and Preview), `BETTER_AUTH_SECRET` (Production and Preview, different from the local one) and `BETTER_AUTH_URL` (Production), plus `DEMO_EMAIL` and `DEMO_PASSWORD` (Production and Preview) for the demo account. Functions are pinned to `iad1` in `vercel.json`, next to the database.
 
 ## What I Learned
 
@@ -129,11 +135,9 @@ Trades are created, updated and deleted through Next.js Server Actions rather th
 
 ## Future Improvements
 
-- Setups and mistake tags, with stats by setup and tag
 - Filters by date, symbol, setup and tag
 - Charts: equity curve and P/L by day or week
 - Broker CSV import
-- Demo account with sample trades
 - End-to-end tests with Playwright
 
 ## Disclaimer
