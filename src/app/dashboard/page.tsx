@@ -12,6 +12,8 @@ import { calculateMaxDrawdown } from "@/lib/drawdown";
 import { calculateStatsBySetup } from "@/lib/setup-stats";
 import { SetupStatsTable } from "./setup-stats-table";
 import { calculateStatsByTag } from "@/lib/tag-stats";
+import { calculateEquityCurve } from "@/lib/equity-curve";
+import { EquityCurveChart } from "./equity-curve-chart";
 import { MistakeStatsTable } from "./mistake-stats-table";
 import { StatsCards } from "./stats-cards";
 
@@ -51,6 +53,7 @@ export default async function DashboardPage() {
   });
   const stats = calculateStats(statsTrades);
   const maxDrawdown = calculateMaxDrawdown(statsTrades);
+  const equityCurve = calculateEquityCurve(statsTrades);
   const setupStats = calculateStatsBySetup(statsTrades);
   const mistakeStats = calculateStatsByTag(statsTrades);
   const setups = await prisma.setup.findMany({
@@ -82,6 +85,7 @@ export default async function DashboardPage() {
        <section className="mt-6" aria-label="Performance summary">
         <StatsCards stats={stats} maxDrawdown={maxDrawdown} />
       </section>
+        <EquityCurveChart points={equityCurve} />
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">By setup</h2>
         <SetupStatsTable groups={setupStats} />
