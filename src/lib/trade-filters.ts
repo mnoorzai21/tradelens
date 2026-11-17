@@ -46,7 +46,7 @@ export function parseTradeFilters(searchParams: SearchParams): TradeFilters {
 }
 
 // Eastern Time's offset from UTC at a given moment, like "-05:00" or "-04:00"
-function easternOffset(instant: Date): string {
+export function easternOffset(instant: Date): string {
   const part = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
     timeZoneName: "longOffset",
