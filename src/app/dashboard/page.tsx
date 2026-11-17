@@ -80,7 +80,17 @@ export default async function DashboardPage({
         <h1 className="text-2xl font-semibold">
           Welcome, {session.user.name}
         </h1>
-        <SignOutButton />
+        <div className="flex items-center gap-3">
+          {!isDemo && (
+            <Link
+              href="/dashboard/import"
+              className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-900"
+            >
+              Import CSV
+            </Link>
+          )}
+          <SignOutButton />
+        </div>
       </header>
       {isDemo && (
         <div
