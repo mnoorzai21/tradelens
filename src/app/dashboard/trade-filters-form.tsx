@@ -8,7 +8,9 @@ type Props = {
 };
 
 export function TradeFiltersForm({ filters, setupOptions }: Props) {
-  const isFiltered = Boolean(filters.symbol || filters.setup);
+  const isFiltered = Boolean(
+    filters.symbol || filters.setup || filters.from || filters.to
+  );
 
   return (
     <Form
@@ -42,6 +44,26 @@ export function TradeFiltersForm({ filters, setupOptions }: Props) {
             </option>
           ))}
         </select>
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-neutral-400">From</span>
+        <input
+          type="date"
+          name="from"
+          defaultValue={filters.from ?? ""}
+          className="rounded-lg border border-neutral-700 bg-transparent px-3 py-2 [color-scheme:dark]"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-neutral-400">To</span>
+        <input
+          type="date"
+          name="to"
+          defaultValue={filters.to ?? ""}
+          className="rounded-lg border border-neutral-700 bg-transparent px-3 py-2 [color-scheme:dark]"
+        />
       </label>
 
       <button
