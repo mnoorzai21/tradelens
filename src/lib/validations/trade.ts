@@ -41,9 +41,20 @@ export const tradeSchema = z
       .max(10, "Choose at most 10 mistakes")
       .default([]),
   })
-  .refine((trade) => trade.exitAt >= trade.entryAt, {
+    .refine((trade) => trade.exitAt >= trade.entryAt, {
     message: "Exit time must be after entry time",
     path: ["exitAt"],
-  });
+  })
+  .refine(
+    (trade) =>
+      trade.stopPrice === undefined ||
+      (trade.side === "LONG"
+        ? trade.stopPrice < trade.entryPrice
+        : trade.stopPrice > trade.entryPrice),
+    {
+      message: "For a long, the stop must be below the entry. For a short, above it.",
+      path: ["stopPrice"],
+    }
+  );
 
 export type TradeInput = z.infer<typeof tradeSchema>;
