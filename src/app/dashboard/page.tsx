@@ -12,15 +12,19 @@ import { calculateMaxDrawdown } from "@/lib/drawdown";
 import { calculateStatsBySetup } from "@/lib/setup-stats";
 import { SetupStatsTable } from "./setup-stats-table";
 import { calculateStatsByTag } from "@/lib/tag-stats";
+import { buildTradeWhere, parseTradeFilters } from "@/lib/trade-filters";
 import { calculateEquityCurve } from "@/lib/equity-curve";
 import { EquityCurveChart } from "./equity-curve-chart";
 import { calculateDailyPnl } from "@/lib/daily-pnl";
 import { DailyPnlChart } from "./daily-pnl-chart";
 import { MistakeStatsTable } from "./mistake-stats-table";
 import { StatsCards } from "./stats-cards";
+import { TradeFiltersForm } from "./trade-filters-form";
 
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: PageProps<"/dashboard">) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -30,16 +34,19 @@ export default async function DashboardPage() {
   }
 
   const isDemo = session.user.isDemo;
+  const filters = parseTradeFilters(await searchParams);
+  const where = buildTradeWhere(session.user.id, filters);
+  const isFiltered = Boolean(filters.symbol || filters.setup);
 
   const trades = await prisma.trade.findMany({
-    where: { userId: session.user.id },
+    where,
     orderBy: { exitAt: "desc" },
     take: 50,
     include: { setup: { select: { name: true } } },
   });
 
   const statsTrades = await prisma.trade.findMany({
-    where: { userId: session.user.id },
+    where,
     select: {
       side: true,
       entryPrice: true,
@@ -59,6 +66,7 @@ export default async function DashboardPage() {
   const dailyPnl = calculateDailyPnl(statsTrades);
   const setupStats = calculateStatsBySetup(statsTrades);
   const mistakeStats = calculateStatsByTag(statsTrades);
+  const noMatches = isFiltered && statsTrades.length === 0;
   const setups = await prisma.setup.findMany({
     where: { userId: session.user.id },
     orderBy: { name: "asc" },
@@ -85,19 +93,38 @@ export default async function DashboardPage() {
           to log your own trades.
         </div>
       )}
-       <section className="mt-6" aria-label="Performance summary">
-        <StatsCards stats={stats} maxDrawdown={maxDrawdown} />
-      </section>
-      <EquityCurveChart points={equityCurve} />
-      <DailyPnlChart days={dailyPnl} />
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">By setup</h2>
-        <SetupStatsTable groups={setupStats} />
-      </section>
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">Mistakes</h2>
-        <MistakeStatsTable groups={mistakeStats} />
-      </section>
+      <TradeFiltersForm
+        filters={filters}
+        setupOptions={setups.map((setup) => setup.name)}
+      />
+      {noMatches ? (
+        <p
+          role="status"
+          className="mt-6 rounded-xl border border-neutral-800 p-6 text-neutral-400"
+        >
+          No trades match these filters.{" "}
+          <Link href="/dashboard" className="underline hover:text-neutral-200">
+            Clear filters
+          </Link>{" "}
+          to see all your trades.
+        </p>
+      ) : (
+        <>
+          <section className="mt-6" aria-label="Performance summary">
+            <StatsCards stats={stats} maxDrawdown={maxDrawdown} />
+          </section>
+          <EquityCurveChart points={equityCurve} />
+          <DailyPnlChart days={dailyPnl} />
+          <section className="mt-8">
+            <h2 className="mb-3 text-lg font-semibold">By setup</h2>
+            <SetupStatsTable groups={setupStats} />
+          </section>
+          <section className="mt-8">
+            <h2 className="mb-3 text-lg font-semibold">Mistakes</h2>
+            <MistakeStatsTable groups={mistakeStats} />
+          </section>
+        </>
+      )}
       {!isDemo && (
         <div className="mt-6">
           <TradeForm
@@ -110,10 +137,12 @@ export default async function DashboardPage() {
           />
         </div>
       )}
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">Your trades</h2>
-        <TradeTable trades={trades} readOnly={isDemo} />
-      </section>
+      {!noMatches && (
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">Your trades</h2>
+          <TradeTable trades={trades} readOnly={isDemo} />
+        </section>
+      )}
     </main>
   );
 }
