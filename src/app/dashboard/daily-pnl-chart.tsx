@@ -57,6 +57,10 @@ export function DailyPnlChart({ days }: { days: DailyPnl[] }) {
               tickLine={false}
               tickFormatter={(value) => money.format(Number(value))}
               width={72}
+              domain={[
+                (dataMin: number) => Math.min(0, Math.floor(dataMin / 50) * 50),
+                (dataMax: number) => Math.max(0, Math.ceil(dataMax / 50) * 50),
+              ]}
             />
             <ReferenceLine y={0} stroke="#525252" />
             <Tooltip
