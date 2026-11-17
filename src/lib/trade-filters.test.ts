@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildTradeWhere,
+  NO_MISTAKES,
   parseTradeFilters,
   startOfEasternDay,
 } from "./trade-filters";
@@ -113,6 +114,28 @@ describe("buildTradeWhere with dates", () => {
     expect(where).toEqual({
       userId: "user-1",
       exitAt: { gte: new Date("2026-11-02T05:00:00.000Z") },
+    });
+  });
+});
+
+describe("mistake filter", () => {
+  it("keeps the mistake name from the URL", () => {
+    expect(parseTradeFilters({ mistake: "Chased entry" }).mistake).toBe(
+      "Chased entry"
+    );
+  });
+
+  it("finds trades that have the mistake tag", () => {
+    expect(buildTradeWhere("user-1", { mistake: "Chased entry" })).toEqual({
+      userId: "user-1",
+      tags: { some: { name: "Chased entry" } },
+    });
+  });
+
+  it("finds trades without any mistakes", () => {
+    expect(buildTradeWhere("user-1", { mistake: NO_MISTAKES })).toEqual({
+      userId: "user-1",
+      tags: { none: {} },
     });
   });
 });
