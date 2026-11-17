@@ -12,7 +12,7 @@ export function SetupStatsTable({ groups }: { groups: SetupStats[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-800">
+    <div className="relative overflow-x-auto rounded-xl border border-zinc-800">
       <table className="w-full whitespace-nowrap text-left text-sm">
         <caption className="sr-only">Performance by setup, most profitable first</caption>
         <thead className="border-b border-zinc-800 text-zinc-400">

@@ -39,7 +39,7 @@ export function DailyPnlChart({ days }: { days: DailyPnl[] }) {
   return (
     <section className="mt-8 flex flex-col gap-3">
       <h2 className="text-lg font-semibold">P/L by day</h2>
-      <div className="h-72 rounded-xl border border-neutral-800 p-4">
+      <div className="h-72 overflow-hidden rounded-xl border border-neutral-800 p-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={days} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
             <CartesianGrid stroke="#262626" vertical={false} />

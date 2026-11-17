@@ -75,8 +75,8 @@ export default async function DashboardPage({
   });
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto w-full max-w-6xl px-4 py-10">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">
           Welcome, {session.user.name}
         </h1>
