@@ -1,6 +1,7 @@
 import Form from "next/form";
 import Link from "next/link";
-import type { TradeFilters } from "@/lib/trade-filters";
+import { NO_MISTAKES, type TradeFilters } from "@/lib/trade-filters";
+import { MISTAKE_TAGS } from "@/lib/mistake-tags";
 
 type Props = {
   filters: TradeFilters;
@@ -9,7 +10,7 @@ type Props = {
 
 export function TradeFiltersForm({ filters, setupOptions }: Props) {
   const isFiltered = Boolean(
-    filters.symbol || filters.setup || filters.from || filters.to
+    filters.symbol || filters.setup || filters.mistake || filters.from || filters.to
   );
 
   return (
@@ -41,6 +42,23 @@ export function TradeFiltersForm({ filters, setupOptions }: Props) {
           {setupOptions.map((setup) => (
             <option key={setup} value={setup}>
               {setup}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-neutral-400">Mistake</span>
+        <select
+          name="mistake"
+          defaultValue={filters.mistake ?? ""}
+          className="w-44 rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2"
+        >
+          <option value="">All trades</option>
+          <option value={NO_MISTAKES}>No mistakes</option>
+          {MISTAKE_TAGS.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
             </option>
           ))}
         </select>

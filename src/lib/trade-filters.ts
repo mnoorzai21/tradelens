@@ -28,9 +28,16 @@ const tradeFiltersSchema = z.object({
     firstNonEmpty,
     z.string().trim().max(50).optional().catch(undefined)
   ),
+    mistake: z.preprocess(
+    firstNonEmpty,
+    z.string().trim().max(30).optional().catch(undefined)
+  ),
   from: z.preprocess(firstNonEmpty, marketDate.optional().catch(undefined)),
   to: z.preprocess(firstNonEmpty, marketDate.optional().catch(undefined)),
 });
+
+// The "No mistakes" option, for trades without any mistake tags
+export const NO_MISTAKES = "none";
 
 export type TradeFilters = z.infer<typeof tradeFiltersSchema>;
 
@@ -80,6 +87,11 @@ export function buildTradeWhere(
     userId,
     ...(filters.symbol ? { symbol: filters.symbol } : {}),
     ...(filters.setup ? { setup: { name: filters.setup } } : {}),
+        ...(filters.mistake === NO_MISTAKES
+      ? { tags: { none: {} } }
+      : filters.mistake
+        ? { tags: { some: { name: filters.mistake } } }
+        : {}),
     ...(filters.from || filters.to ? { exitAt } : {}),
   };
 }

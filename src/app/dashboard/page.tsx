@@ -37,7 +37,7 @@ export default async function DashboardPage({
   const filters = parseTradeFilters(await searchParams);
   const where = buildTradeWhere(session.user.id, filters);
   const isFiltered = Boolean(
-    filters.symbol || filters.setup || filters.from || filters.to
+    filters.symbol || filters.setup || filters.mistake || filters.from || filters.to
   );
   const trades = await prisma.trade.findMany({
     where,
