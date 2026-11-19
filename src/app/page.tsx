@@ -5,9 +5,11 @@ import { auth } from "@/lib/auth";
 import { signInAsDemo } from "./sign-in/actions";
 
 const FEATURES = [
-  "P/L, win rate, expectancy and R-multiples with exact decimal math",
+  "P/L, win rate, expectancy, R-multiples and max drawdown, with exact decimal math",
   "Stats by setup, and what each trading mistake costs you",
-  "Max drawdown, so you see your worst run, not just your best",
+  "An equity curve and P/L by day",
+  "Filters by symbol, setup, mistake and date",
+  "Import your trades from a CSV file",
 ];
 
 export default async function Home() {
