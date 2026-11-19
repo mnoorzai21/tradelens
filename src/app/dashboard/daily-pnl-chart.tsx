@@ -11,7 +11,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
 import type { DailyPnl } from "@/lib/daily-pnl";
+import { niceAxis } from "@/lib/chart-axis";
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -36,6 +38,8 @@ export function DailyPnlChart({ days }: { days: DailyPnl[] }) {
     return null;
   }
 
+  const axis = niceAxis(days.map((day) => day.pnl));
+
   return (
     <section className="mt-8 flex flex-col gap-3">
       <h2 className="text-lg font-semibold">P/L by day</h2>
@@ -57,10 +61,8 @@ export function DailyPnlChart({ days }: { days: DailyPnl[] }) {
               tickLine={false}
               tickFormatter={(value) => money.format(Number(value))}
               width={72}
-              domain={[
-                (dataMin: number) => Math.min(0, Math.floor(dataMin / 50) * 50),
-                (dataMax: number) => Math.max(0, Math.ceil(dataMax / 50) * 50),
-              ]}
+              domain={axis.domain}
+              ticks={axis.ticks}
             />
             <ReferenceLine y={0} stroke="#525252" />
             <Tooltip
