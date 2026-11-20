@@ -82,12 +82,20 @@ export default async function DashboardPage({
         </h1>
         <div className="flex items-center gap-3">
           {!isDemo && (
-            <Link
-              href="/dashboard/import"
-              className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-900"
-            >
-              Import CSV
-            </Link>
+            <>
+              <Link
+                href="/dashboard/import"
+                className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-900"
+              >
+                Import CSV
+              </Link>
+              <Link
+                href="/dashboard/account"
+                className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-900"
+              >
+                Account
+              </Link>
+            </>
           )}
           <SignOutButton />
         </div>
