@@ -13,6 +13,7 @@ Click **Try the demo** on the sign-in page to explore a read-only account with 6
 ## Features
 
 - **Secure accounts** with Better Auth: email and password sign-up, hashed passwords, and sessions stored in PostgreSQL.
+- **Change password:** signed-in users can change their password from the Account page, and their other devices are signed out.
 - **Protected dashboard:** the server checks the session before rendering, so signed-out visitors never receive the page.
 - **Trade logging:** add, edit and delete trades, with server-side validation (Zod) and an error under each field. Stops are checked too: below the entry for a long, above it for a short.
 - **Exact P/L:** all money math uses decimals instead of floating point, so `0.3 - 0.1` is exactly `0.2`, and fees can include fractions of a cent.
@@ -22,7 +23,7 @@ Click **Try the demo** on the sign-in page to explore a read-only account with 6
 - **Setups and mistakes:** label each trade with a setup and the mistakes made, then see stats by setup and what each mistake costs, with the symbols involved.
 - **Filters:** by symbol, setup, mistake and date range. Filters live in the URL, so a filtered view can be bookmarked, and they update the stats, charts and tables together.
 - **CSV import:** upload a file of trades, with every row validated by the same rules as the form. If any row has an error, nothing is imported, and each error shows its row number. Uploading the same file twice skips trades that already exist.
-- **One-click demo:** a read-only demo account with 60 realistic trades. Changes are blocked on the server, not just hidden in the interface.
+- **One-click demo:** a read-only demo account with 60 realistic trades. Changes are blocked on the server, not just hidden in the interface, including Better Auth's own account endpoints, so nobody can change the demo's password.
 - **Data isolation:** every query is scoped to the signed-in user. Editing or deleting another user's trade is impossible (IDOR-safe), and their trade pages return 404.
 - **Market time:** trades are stored in UTC and shown in Eastern Time. Dates for filters, daily P/L and CSV import are Eastern market dates, including on daylight saving days.
 - **Works on phones:** the dashboard fits small screens, and wide tables scroll inside their own box.
@@ -152,6 +153,7 @@ Trades are created, updated and deleted through Next.js Server Actions rather th
 
 ## Future Improvements
 
+- Forgot password and email verification, with email sending through Resend
 - Import broker exports, which list individual fills instead of whole trades
 - Undo an import
 - Run the end-to-end tests in CI, with a separate Neon database branch
