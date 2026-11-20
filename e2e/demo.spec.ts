@@ -17,12 +17,18 @@ test.describe("demo account", () => {
   test("hides the add, import, edit and delete controls", async ({ page }) => {
     await expect(page.getByText("Add a trade")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Import CSV" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Account", exact: true })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Edit" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Delete" })).toHaveCount(0);
   });
 
   test("redirects away from the import page", async ({ page }) => {
     await page.goto("/dashboard/import");
+    await expect(page).toHaveURL(/\/dashboard$/);
+  });
+
+    test("redirects away from the account page", async ({ page }) => {
+    await page.goto("/dashboard/account");
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 
