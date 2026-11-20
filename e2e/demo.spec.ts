@@ -48,4 +48,16 @@ test.describe("demo account", () => {
     }));
     expect(width.page).toBeLessThanOrEqual(width.screen);
   });
+
+    test("can't change the demo account through the auth API", async ({ page, baseURL }) => {
+    // A wrong current password, so even if the guard ever failed,
+    // the shared demo password would not actually change
+    const response = await page.request.post("/api/auth/change-password", {
+      headers: { origin: baseURL! },
+      data: { currentPassword: "not-the-password", newPassword: "new-password-123" },
+    });
+
+    expect(response.status()).toBe(403);
+    expect(await response.text()).toContain("The demo account is read-only.");
+  });
 });
